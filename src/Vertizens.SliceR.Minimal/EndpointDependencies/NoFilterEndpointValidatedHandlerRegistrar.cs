@@ -18,9 +18,18 @@ internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHan
 
                 if (resolved.EntityDefinition != null)
                 {
-                    context.Services.TryAddTransient(
-                    validatedHandlerInterface,
-                    typeof(NoFilterQueryableValidatedHandler<>).MakeGenericType(resolved.EntityDefinition.EntityType));
+                    if (resolved.DomainType != null)
+                    {
+                        context.Services.TryAddTransient(
+                            validatedHandlerInterface,
+                            typeof(NoFilterQueryableValidatedHandler<,>).MakeGenericType(resolved.EntityDefinition.EntityType, resolved.DomainType));
+                    }
+                    else
+                    {
+                        context.Services.TryAddTransient(
+                            validatedHandlerInterface,
+                            typeof(NoFilterQueryableValidatedHandler<>).MakeGenericType(resolved.EntityDefinition.EntityType));
+                    }
                     handled = true;
                 }
             }
