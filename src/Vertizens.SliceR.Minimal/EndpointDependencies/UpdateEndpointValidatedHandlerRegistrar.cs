@@ -17,7 +17,7 @@ internal class UpdateEndpointValidatedHandlerRegistrar : IEndpointValidatedHandl
                 var keyType = updatedArguments[0];
                 var updateRequestType = updatedArguments[1];
                 var resolveType = arguments[1];
-                var resolved = HandlerResolvedTypes.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
 
                 if (resolved.EntityDefinition != null && resolved.EntityDefinition.KeyType == keyType)
                 {

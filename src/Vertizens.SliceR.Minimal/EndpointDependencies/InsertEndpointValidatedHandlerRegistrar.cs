@@ -15,15 +15,15 @@ internal class InsertEndpointValidatedHandlerRegistrar : IEndpointValidatedHandl
             {
                 var insertRequestType = arguments[0].GetGenericArguments()[0];
                 var resolveType = arguments[1];
-                var resolved = HandlerResolvedTypes.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
 
                 if (resolved.EntityDefinition != null)
                 {
-                    if (resolved.DomainType != null)
+                    if (resolved.DomainType != null && resolved.EntityDefinition.KeyType != null)
                     {
                         context.Services.TryAddTransient(
                             validatedHandlerInterface,
-                            typeof(InsertValidatedHandler<,,>).MakeGenericType(insertRequestType, resolved.DomainType, resolved.EntityDefinition.EntityType));
+                            typeof(InsertValidatedHandler<,,,>).MakeGenericType(insertRequestType, resolved.DomainType, resolved.EntityDefinition.KeyType, resolved.EntityDefinition.EntityType));
                     }
                     else
                     {

@@ -1,12 +1,12 @@
 ﻿using Vertizens.SliceR.Operations;
 
 namespace Vertizens.SliceR.Minimal;
-internal struct HandlerResolvedTypes
+internal class HandlerResolvedContext
 {
     public EntityDefinition? EntityDefinition;
     public Type? DomainType;
 
-    internal static HandlerResolvedTypes Create(Type resolutionType, IEntityDefinitionResolver definitionResolver, IDomainToEntityTypeResolver entityTypeResolver)
+    internal static HandlerResolvedContext Create(Type resolutionType, IEntityDefinitionResolver definitionResolver, IDomainToEntityTypeResolver entityTypeResolver)
     {
         Type? domainType = null;
 
@@ -21,6 +21,6 @@ internal struct HandlerResolvedTypes
             }
         }
 
-        return new HandlerResolvedTypes { EntityDefinition = entityDefinition, DomainType = domainType };
+        return new HandlerResolvedContext { EntityDefinition = entityDefinition, DomainType = domainType };
     }
 }

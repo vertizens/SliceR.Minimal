@@ -14,7 +14,7 @@ internal class DeleteEndpointValidatedHandlerRegistrar : IEndpointValidatedHandl
             if (arguments[0].IsGenericType && arguments[0].GetGenericTypeDefinition() == typeof(Delete<,>))
             {
                 var resolveType = arguments[0].GetGenericArguments()[1];
-                var resolved = HandlerResolvedTypes.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
 
                 if (resolved.EntityDefinition != null && resolved.EntityDefinition?.KeyType != null)
                 {

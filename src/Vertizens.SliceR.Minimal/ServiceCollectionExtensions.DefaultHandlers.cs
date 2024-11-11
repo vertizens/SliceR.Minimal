@@ -17,19 +17,17 @@ public static partial class ServiceCollectionExtensions
 
         IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        var entityDefinitionResolver = serviceProvider.GetRequiredService<IEntityDefinitionResolver>();
-        var domainToEntityResolver = serviceProvider.GetRequiredService<IDomainToEntityTypeResolver>();
-        var endpointDependencies = (IEndpointHandlerDependencies)ActivatorUtilities.CreateInstance(serviceProvider, typeof(EndpointHandlerDependencies));
-        var registrars = serviceProvider.GetServices<IEndpointValidatedHandlerRegistrar>();
-
-        var handlerInterfaces = endpointDependencies.GetHandlerInterfaces();
-
         var context = new ValidatedHandlerRegistrarContext
         {
             Services = services,
-            EntityDefinitionResolver = entityDefinitionResolver,
-            DomainToEntityTypeResolver = domainToEntityResolver
+            EntityDefinitionResolver = serviceProvider.GetRequiredService<IEntityDefinitionResolver>(),
+            DomainToEntityTypeResolver = serviceProvider.GetRequiredService<IDomainToEntityTypeResolver>(),
+            EntityDomainHandlerRegistrar = serviceProvider.GetRequiredService<IEntityDomainHandlerRegistrar>()
         };
+        var endpointDependencies = (IEndpointHandlerDependencies)ActivatorUtilities.CreateInstance(serviceProvider, typeof(EndpointHandlerDependencies));
+        var handlerInterfaces = endpointDependencies.GetHandlerInterfaces();
+
+        var registrars = serviceProvider.GetServices<IEndpointValidatedHandlerRegistrar>();
         var isService = serviceProvider.GetRequiredService<IServiceProviderIsService>();
         var unhandledTypes = new List<Type>();
         foreach (var handlerInterface in handlerInterfaces)

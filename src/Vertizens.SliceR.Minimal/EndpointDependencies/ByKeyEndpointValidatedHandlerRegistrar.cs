@@ -11,11 +11,13 @@ internal class ByKeyEndpointValidatedHandlerRegistrar : IEndpointValidatedHandle
         var arguments = validatedHandlerInterface.GetGenericArguments();
         if (arguments.Length == 2)
         {
-            if (arguments[0].IsGenericType && arguments[0].GetGenericTypeDefinition() == typeof(ByKey<>))
+            var request = arguments[0];
+            var result = arguments[1];
+            if (request.IsGenericType && request.GetGenericTypeDefinition() == typeof(ByKey<>))
             {
-                var argumentKeyType = arguments[0].GetGenericArguments()[0];
-                var resolveType = arguments[1];
-                var resolved = HandlerResolvedTypes.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var argumentKeyType = request.GetGenericArguments()[0];
+                var resolveType = result;
+                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
 
                 if (resolved.EntityDefinition != null && resolved.EntityDefinition.KeyType == argumentKeyType)
                 {
@@ -23,7 +25,16 @@ internal class ByKeyEndpointValidatedHandlerRegistrar : IEndpointValidatedHandle
                     {
                         context.Services.TryAddTransient(
                             validatedHandlerInterface,
-                            typeof(ByKeyValidatedHandler<,,>).MakeGenericType(resolved.EntityDefinition.KeyType, resolved.EntityDefinition.EntityType, resolved.DomainType));
+                            typeof(ByKeyValidatedHandler<,>).MakeGenericType(resolved.EntityDefinition.KeyType, resolved.DomainType));
+
+                        context.EntityDomainHandlerRegistrar.Register(new EntityDomainHandlerContext
+                        {
+                            Services = context.Services,
+                            EntityDefinition = resolved.EntityDefinition!,
+                            DomainType = resolved.DomainType!,
+                            RequestType = request,
+                            ResultType = result
+                        });
                     }
                     else
                     {

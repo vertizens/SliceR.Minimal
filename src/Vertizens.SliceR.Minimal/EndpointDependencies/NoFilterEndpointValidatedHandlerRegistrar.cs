@@ -11,10 +11,12 @@ internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHan
         var arguments = validatedHandlerInterface.GetGenericArguments();
         if (arguments.Length == 2)
         {
-            if (arguments[0] == typeof(NoFilter) && arguments[1].IsGenericType && arguments[1].GetGenericTypeDefinition() == typeof(IQueryable<>))
+            var request = arguments[0];
+            var result = arguments[1];
+            if (request == typeof(NoFilter) && result.IsGenericType && result.GetGenericTypeDefinition() == typeof(IQueryable<>))
             {
-                var resolveType = arguments[1].GetGenericArguments()[0];
-                var resolved = HandlerResolvedTypes.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolveType = result.GetGenericArguments()[0];
+                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
 
                 if (resolved.EntityDefinition != null)
                 {
@@ -22,7 +24,16 @@ internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHan
                     {
                         context.Services.TryAddTransient(
                             validatedHandlerInterface,
-                            typeof(NoFilterQueryableValidatedHandler<,>).MakeGenericType(resolved.EntityDefinition.EntityType, resolved.DomainType));
+                            typeof(NoFilterQueryableValidatedHandler<>).MakeGenericType(resolved.DomainType));
+
+                        context.EntityDomainHandlerRegistrar.Register(new EntityDomainHandlerContext
+                        {
+                            Services = context.Services,
+                            EntityDefinition = resolved.EntityDefinition!,
+                            DomainType = resolved.DomainType!,
+                            RequestType = request,
+                            ResultType = result
+                        });
                     }
                     else
                     {
