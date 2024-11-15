@@ -1,4 +1,9 @@
 ﻿namespace Vertizens.SliceR.Minimal;
+
+/// <summary>
+/// Defines a Domain to Entity mapping strategy that looks for <see cref="IDomainToEntity{TEntity}"/> indicator interface 
+/// on the domain type that points to the entity it will be mapped to
+/// </summary>
 internal class DomainToEntityTypeResolver : IDomainToEntityTypeResolver
 {
     public Type? GetEntityType(Type domainType)

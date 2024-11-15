@@ -9,6 +9,11 @@ using Vertizens.TypeMapper;
 namespace Vertizens.SliceR.Minimal;
 public static partial class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Evaluates registered endpoints for <see cref="IValidatedHandler{TRequest,TResult}"/> dependencies and a checks for convention where default behavior handlers may be registered.
+    /// Note this method uses Services registered up to calling this method.  Requires Minimal Endpoints to be defined, dependent on usage of Entities, and using <see cref="IDomainToEntity{TEntity}"/>
+    /// </summary>
+    /// <param name="services">Service Collection</param>
     public static IServiceCollection AddSliceREndpointDefaultValidatedHandlers(this IServiceCollection services)
     {
         services.AddTypeMappers();
@@ -61,11 +66,10 @@ public static partial class ServiceCollectionExtensions
             });
             var logger = loggerFactory.CreateLogger("Startup");
 
-            var message = new StringBuilder();
-            message.AppendLine("These handler types could not be default created:");
-            unhandledTypes.ForEach(x => message.AppendLine(x.ToString()));
+            var unhandledTypesMessage = new StringBuilder();
+            unhandledTypes.ForEach(x => unhandledTypesMessage.AppendLine(x.ToString()));
 
-            logger.LogWarning(message.ToString());
+            logger.LogWarning("These handler types could not be default created: {unhandledTypesMessage}", unhandledTypesMessage);
         }
 
         return services;
