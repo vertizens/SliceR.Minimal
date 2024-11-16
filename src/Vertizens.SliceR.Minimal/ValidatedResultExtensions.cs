@@ -2,8 +2,17 @@
 using Vertizens.SliceR.Validated;
 
 namespace Vertizens.SliceR.Minimal;
+
+/// <summary>
+/// Extensions for a ValidatedResult instance
+/// </summary>
 public static class ValidatedResultExtensions
 {
+    /// <summary>
+    /// Get the equivalent Http <see cref="IResult"/> appropriate for the <see cref="ValidatedResult"/>
+    /// </summary>
+    /// <param name="validatedResult">Instance of result</param>
+    /// <returns></returns>
     public static IResult ToHttpResult(this ValidatedResult validatedResult)
     {
         if (validatedResult.IsSuccessful)
@@ -14,6 +23,13 @@ public static class ValidatedResultExtensions
         return validatedResult.ToUnsuccessfulResult();
     }
 
+    /// <summary>
+    /// Get the equivalent Http <see cref="IResult"/> appropriate for the <see cref="ValidatedResult{TResult}"/>
+    /// Return <typeparamref name="T"/> instance if result is successful
+    /// </summary>
+    /// <typeparam name="T">Type on content value to have in response body</typeparam>
+    /// <param name="validatedResult">Instance of result</param>
+    /// <returns></returns>
     public static IResult ToHttpResult<T>(this ValidatedResult<T> validatedResult)
     {
         if (validatedResult.IsSuccessful)
@@ -24,6 +40,12 @@ public static class ValidatedResultExtensions
         return validatedResult.ToUnsuccessfulResult();
     }
 
+    /// <summary>
+    /// Get the equivalent Http <see cref="IResult"/> appropriate for the <see cref="ValidatedResult{FileResponse}"/>
+    /// For file downloads
+    /// </summary>
+    /// <param name="validatedResult">Instance of result</param>
+    /// <returns></returns>
     public static IResult ToHttpResult(this ValidatedResult<FileResponse> validatedResult)
     {
         if (validatedResult.IsSuccessful)

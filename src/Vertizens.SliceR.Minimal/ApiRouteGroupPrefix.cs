@@ -1,4 +1,8 @@
 ﻿namespace Vertizens.SliceR.Minimal;
+
+/// <summary>
+/// Static values for api group prefixes
+/// </summary>
 public static class ApiRouteGroupPrefix
 {
     /// <summary>

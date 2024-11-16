@@ -3,6 +3,10 @@ using System.Reflection;
 using Vertizens.ServiceProxy;
 
 namespace Vertizens.SliceR.Minimal;
+
+/// <summary>
+/// Extensions for ServiceCollection
+/// </summary>
 public static partial class ServiceCollectionExtensions
 {
     /// <summary>

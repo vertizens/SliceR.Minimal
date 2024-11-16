@@ -7,6 +7,9 @@ using Vertizens.SliceR.Validated;
 
 namespace Vertizens.SliceR.Minimal;
 
+/// <summary>
+/// Extensions for <see cref="IEndpointRouteBuilder"/> that uses <see cref="IValidatedHandler{TRequest}"/> or <see cref="IValidatedHandler{TRequest, TResult}"/>
+/// </summary>
 public static partial class EndpointRouteBuilderExtensions
 {
     /// <summary>
@@ -14,6 +17,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// and expects <see cref="IQueryable{T}"/> of type <typeparamref name="TDomain"/> in response.
     /// </summary>
     /// <typeparam name="TDomain">Expected domain type</typeparam>
+    /// <param name="endpoints">Instance of <see cref="IEndpointRouteBuilder"/></param>
     /// <param name="pattern">any route pattern for building endpoint</param>
     public static RouteHandlerBuilder MapGetAsNoFilterQueryable<TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "")
     {
@@ -28,6 +32,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// </summary>
     /// <typeparam name="TId">Id or key value for TDomain, expects property called Id</typeparam>
     /// <typeparam name="TDomain">Expected domain type</typeparam>
+    /// <param name="endpoints">Instance of <see cref="IEndpointRouteBuilder"/></param>
     /// <param name="pattern">any route pattern for building endpoint</param>
     /// <returns></returns>
     public static RouteHandlerBuilder MapGetAsById<TId, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")

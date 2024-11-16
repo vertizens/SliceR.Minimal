@@ -2,6 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Vertizens.SliceR.Minimal;
+
+/// <summary>
+/// Extensions for <see cref="IEndpointRouteBuilder"/>
+/// </summary>
 public static partial class EndpointRouteBuilderExtensions
 {
     /// <summary>

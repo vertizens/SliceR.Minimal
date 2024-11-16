@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using Vertizens.ServiceProxy;
 using Vertizens.SliceR.Operations;
+using Vertizens.SliceR.Validated;
 using Vertizens.TypeMapper;
 
 namespace Vertizens.SliceR.Minimal;

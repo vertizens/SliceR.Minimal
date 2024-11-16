@@ -20,6 +20,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <summary>
     /// Creates RouteGroupBuilder with a given group name. Group tag matches group name.
     /// </summary>
+    /// <param name="builder">Instance of <see cref="IEndpointRouteBuilder"/></param>
     /// <param name="routeGroupName">Name of this group in kebab case</param>
     /// <returns></returns>
     public static RouteGroupBuilder MapRootRouteGroup(this IEndpointRouteBuilder builder, string routeGroupName)
@@ -33,6 +34,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// Creates RouteGroupBuilder with prefix and tag to build endpoints for.  Can be used to make a group within a group.
     /// </summary>
     /// <typeparam name="T">Defaults the name to the name of this type in kebab case</typeparam>
+    /// <param name="builder">Instance of <see cref="IEndpointRouteBuilder"/></param>
     /// <param name="groupPrefix">set a group prefix</param>
     /// <param name="groupTag">define the group tag</param>
     /// <returns></returns>
@@ -47,6 +49,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <summary>
     /// Creates RouteGroupBuilder with specific custom group name, prefix, and tag.
     /// </summary>
+    /// <param name="builder">Instance of <see cref="IEndpointRouteBuilder"/></param>
     /// <param name="routeGroupName">sets the route url with group name</param>
     /// <param name="groupPrefix">set a group prefix</param>
     /// <param name="groupTag">define the group tag</param>
