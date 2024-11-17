@@ -24,7 +24,7 @@ public static class ValidatedResultExtensions
     }
 
     /// <summary>
-    /// Get the equivalent Http <see cref="IResult"/> appropriate for the <see cref="ValidatedResult{TResult}"/>
+    /// Get the equivalent Http <see cref="IResult"/> appropriate for the <see cref="ValidatedResult{T}"/>
     /// Return <typeparamref name="T"/> instance if result is successful
     /// </summary>
     /// <typeparam name="T">Type on content value to have in response body</typeparam>

@@ -27,7 +27,7 @@ public static partial class EndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="ByKey{TKey}"/> 
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="ByKey{TId}"/> 
     /// and expects an instance of type <typeparamref name="TDomain"/> in response.
     /// </summary>
     /// <typeparam name="TId">Id or key value for TDomain, expects property called Id</typeparam>
@@ -85,13 +85,13 @@ public static partial class EndpointRouteBuilderExtensions
     /// </summary>
     public static RouteHandlerBuilder MapPost<TRequest>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "")
     {
-        return endpoints.MapPost(pattern, (TRequest request, IValidatedHandler<TRequest> postHandlerNoResult) =>
-            postHandlerNoResult.Handle(request))
+        return endpoints.MapPost(pattern, async (TRequest request, IValidatedHandler<TRequest> postHandlerNoResult) =>
+            (await postHandlerNoResult.Handle(request)).ToHttpResult())
             .Produces(StatusCodes.Status204NoContent);
     }
 
     /// <summary>
-    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="Update{TKey, TDomainUpdate}"/>
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="Update{TId, TDomainUpdate}"/>
     /// and expects an instance of type <typeparamref name="TDomain"/> in response.
     /// </summary>
     /// <typeparam name="TId">Id property of existing domain instance</typeparam>
@@ -105,15 +105,15 @@ public static partial class EndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest}"/> that requests <see cref="Delete{TKey, TDomain}"/>
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest}"/> that requests <see cref="Delete{TId, TDomain}"/>
     /// and expects no content in response.
     /// </summary>
     /// <typeparam name="TId">Id property of the domain to be deleted</typeparam>
     /// <typeparam name="TDomain">Type of domain that maps to an entity to be deleted</typeparam>
     public static RouteHandlerBuilder MapDeleteAsById<TId, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
     {
-        return endpoints.MapDelete(pattern, (TId id, IValidatedHandler<Delete<TId, TDomain>> deleteHandler) =>
-            deleteHandler.Handle(new Delete<TId, TDomain>(id)))
+        return endpoints.MapDelete(pattern, async (TId id, IValidatedHandler<Delete<TId, TDomain>> deleteHandler) =>
+            (await deleteHandler.Handle(new Delete<TId, TDomain>(id))).ToHttpResult())
             .Produces(StatusCodes.Status204NoContent);
     }
 }
