@@ -97,7 +97,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <typeparam name="TId">Id property of existing domain instance</typeparam>
     /// <typeparam name="TDomainUpdate">Domain maps to existing entity to be updated</typeparam>
     /// <typeparam name="TDomain">Type to be returned</typeparam>
-    public static RouteHandlerBuilder MapPutAsById<TId, TDomainUpdate, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
+    public static RouteHandlerBuilder MapPutAsUpdateById<TId, TDomainUpdate, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
     {
         return endpoints.MapPut(pattern, (TId id, TDomainUpdate domainUpdate, IValidatedHandler<Update<TId, TDomainUpdate>, TDomain?> updateHandler) =>
             updateHandler.Handle(new Update<TId, TDomainUpdate>(id, domainUpdate)))
