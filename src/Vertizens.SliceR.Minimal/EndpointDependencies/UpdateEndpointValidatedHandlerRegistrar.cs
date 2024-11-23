@@ -11,7 +11,9 @@ internal class UpdateEndpointValidatedHandlerRegistrar : IEndpointValidatedHandl
         var arguments = validatedHandlerInterface.GetGenericArguments();
         if (arguments.Length == 2)
         {
-            if (arguments[0].IsGenericType && arguments[0].GetGenericTypeDefinition() == typeof(Update<,>))
+            var request = arguments[0];
+            var result = arguments[1];
+            if (request.IsGenericType && request.GetGenericTypeDefinition() == typeof(Update<,>))
             {
                 var updatedArguments = arguments[0].GetGenericArguments();
                 var keyType = updatedArguments[0];
@@ -33,6 +35,16 @@ internal class UpdateEndpointValidatedHandlerRegistrar : IEndpointValidatedHandl
                             validatedHandlerInterface,
                             typeof(UpdateValidatedHandler<,,>).MakeGenericType(keyType, updateRequestType, resolved.EntityDefinition.EntityType));
                     }
+
+                    context.EntityDomainHandlerRegistrar.Register(new EntityDomainHandlerContext
+                    {
+                        Services = context.Services,
+                        EntityDefinition = resolved.EntityDefinition!,
+                        DomainType = resolved.DomainType!,
+                        RequestType = request,
+                        ResultType = result
+                    });
+
                     handled = true;
                 }
             }
