@@ -5,10 +5,10 @@ using Vertizens.SliceR.Validated;
 namespace Vertizens.SliceR.Minimal;
 internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHandlerRegistrar
 {
-    public bool Handle(Type validatedHandlerInterface, ValidatedHandlerRegistrarContext context)
+    public bool Handle(EndpointHandler endpointHandler, ValidatedHandlerRegistrarContext context)
     {
         var handled = false;
-        var arguments = validatedHandlerInterface.GetGenericArguments();
+        var arguments = endpointHandler.HandlerType.GetGenericArguments();
         if (arguments.Length == 2)
         {
             var request = arguments[0];
@@ -16,14 +16,14 @@ internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHan
             if (request == typeof(NoFilter) && result.IsGenericType && result.GetGenericTypeDefinition() == typeof(IQueryable<>))
             {
                 var resolveType = result.GetGenericArguments()[0];
-                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolved = HandlerResolvedContext.Create(resolveType, endpointHandler.Endpoint, context.EntityDefinitionResolver, context.EntityMetadataTypeResolver);
 
                 if (resolved.EntityDefinition != null)
                 {
                     if (resolved.DomainType != null)
                     {
                         context.Services.TryAddTransient(
-                            validatedHandlerInterface,
+                            endpointHandler.HandlerType,
                             typeof(NoFilterQueryableValidatedHandler<>).MakeGenericType(resolved.DomainType));
 
                         context.EntityDomainHandlerRegistrar.Register(new EntityDomainHandlerContext
@@ -38,7 +38,7 @@ internal class NoFilterEndpointValidatedHandlerRegistrar : IEndpointValidatedHan
                     else
                     {
                         context.Services.TryAddTransient(
-                            validatedHandlerInterface,
+                            endpointHandler.HandlerType,
                             typeof(NoFilterQueryableValidatedHandler<>).MakeGenericType(resolved.EntityDefinition.EntityType));
                     }
                     handled = true;

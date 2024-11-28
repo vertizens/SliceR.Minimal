@@ -5,10 +5,10 @@ using Vertizens.SliceR.Validated;
 namespace Vertizens.SliceR.Minimal;
 internal class ByKeyEndpointValidatedHandlerRegistrar : IEndpointValidatedHandlerRegistrar
 {
-    public bool Handle(Type validatedHandlerInterface, ValidatedHandlerRegistrarContext context)
+    public bool Handle(EndpointHandler endpointHandler, ValidatedHandlerRegistrarContext context)
     {
         var handled = false;
-        var arguments = validatedHandlerInterface.GetGenericArguments();
+        var arguments = endpointHandler.HandlerType.GetGenericArguments();
         if (arguments.Length == 2)
         {
             var request = arguments[0];
@@ -17,14 +17,14 @@ internal class ByKeyEndpointValidatedHandlerRegistrar : IEndpointValidatedHandle
             {
                 var argumentKeyType = request.GetGenericArguments()[0];
                 var resolveType = result;
-                var resolved = HandlerResolvedContext.Create(resolveType, context.EntityDefinitionResolver, context.DomainToEntityTypeResolver);
+                var resolved = HandlerResolvedContext.Create(resolveType, endpointHandler.Endpoint, context.EntityDefinitionResolver, context.EntityMetadataTypeResolver);
 
                 if (resolved.EntityDefinition != null && resolved.EntityDefinition.KeyType == argumentKeyType)
                 {
                     if (resolved.DomainType != null)
                     {
                         context.Services.TryAddTransient(
-                            validatedHandlerInterface,
+                            endpointHandler.HandlerType,
                             typeof(ByKeyValidatedHandler<,>).MakeGenericType(resolved.EntityDefinition.KeyType, resolved.DomainType));
 
                         context.EntityDomainHandlerRegistrar.Register(new EntityDomainHandlerContext
@@ -39,7 +39,7 @@ internal class ByKeyEndpointValidatedHandlerRegistrar : IEndpointValidatedHandle
                     else
                     {
                         context.Services.TryAddTransient(
-                            validatedHandlerInterface,
+                            endpointHandler.HandlerType,
                             typeof(ByKeyValidatedHandler<,>).MakeGenericType(resolved.EntityDefinition.KeyType, resolved.EntityDefinition.EntityType));
                     }
                     handled = true;

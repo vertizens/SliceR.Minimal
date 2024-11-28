@@ -12,13 +12,13 @@ public static partial class ServiceCollectionExtensions
 {
     /// <summary>
     /// Evaluates registered endpoints for <see cref="IValidatedHandler{TRequest,TResult}"/> dependencies and a checks for convention where default behavior handlers may be registered.
-    /// Note this method uses Services registered up to calling this method.  Requires Minimal Endpoints to be defined, dependent on usage of Entities, and using <see cref="IDomainToEntity{TEntity}"/>
+    /// Note this method uses Services registered up to the point of calling this method.  Requires Minimal Endpoints to be defined, dependent on usage of Entities, and using <see cref="IEntityMetadata{TEntity}"/>
     /// </summary>
     /// <param name="services">Service Collection</param>
     public static IServiceCollection AddSliceREndpointDefaultValidatedHandlers(this IServiceCollection services)
     {
         services.AddTypeMappers();
-        services.TryAddSingleton<IDomainToEntityTypeResolver, DomainToEntityTypeResolver>();
+        services.TryAddSingleton<IEntityMetadataTypeResolver, EntityMetadataTypeResolver>();
         services.AddInterfaceTypes<IEndpointValidatedHandlerRegistrar>();
 
         IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -27,23 +27,23 @@ public static partial class ServiceCollectionExtensions
         {
             Services = services,
             EntityDefinitionResolver = serviceProvider.GetRequiredService<IEntityDefinitionResolver>(),
-            DomainToEntityTypeResolver = serviceProvider.GetRequiredService<IDomainToEntityTypeResolver>(),
+            EntityMetadataTypeResolver = serviceProvider.GetRequiredService<IEntityMetadataTypeResolver>(),
             EntityDomainHandlerRegistrar = serviceProvider.GetRequiredService<IEntityDomainHandlerRegistrar>()
         };
         var endpointDependencies = (IEndpointHandlerDependencies)ActivatorUtilities.CreateInstance(serviceProvider, typeof(EndpointHandlerDependencies));
-        var handlerInterfaces = endpointDependencies.GetHandlerInterfaces();
+        var endpointHandlers = endpointDependencies.GetEndpointHandlers();
 
         var registrars = serviceProvider.GetServices<IEndpointValidatedHandlerRegistrar>();
         var isService = serviceProvider.GetRequiredService<IServiceProviderIsService>();
         var unhandledTypes = new List<Type>();
-        foreach (var handlerInterface in handlerInterfaces)
+        foreach (var endpointHandler in endpointHandlers)
         {
-            if (!isService.IsService(handlerInterface))
+            if (!isService.IsService(endpointHandler.HandlerType))
             {
                 var handled = false;
                 foreach (var registrar in registrars)
                 {
-                    if (registrar.Handle(handlerInterface, context))
+                    if (registrar.Handle(endpointHandler, context))
                     {
                         handled = true;
                         break;
@@ -52,7 +52,7 @@ public static partial class ServiceCollectionExtensions
 
                 if (!handled)
                 {
-                    unhandledTypes.Add(handlerInterface);
+                    unhandledTypes.Add(endpointHandler.HandlerType);
                 }
             }
         }

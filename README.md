@@ -30,7 +30,7 @@ There are several helper extensions:
 
     public IEndpointRouteBuilder Build(IEndpointRouteBuilder builder)
     {
-        var rootRouteGroup = builder.MapRootRouteGroup<EntityType>();
+        var rootRouteBuilder = builder.MapRootRouteGroup<EntityType>();
 
         return builder;
     }
@@ -50,6 +50,22 @@ Examples are:
 `MapPutAsById<TDomainUpdate, TId, TDomain>`  
 `MapDeleteAsById<TDomain, TId>`  
 
+If using entities then use `MapEntityRouteGroup`
+
+    public IEndpointRouteBuilder Build(IEndpointRouteBuilder builder)
+    {
+        var entityRouteBuilder = builder.MapEntityRouteGroup<EntityType, KeyType>();
+
+        return builder;
+    }
+ 
+This returns `EntityRouteGroupBuilder<TEntity, TKey>` or `EntityRouteGroupBuilder<TEntity, TKey, TDomain>`
+depending on the overload called. 
+
+These have the same entity operation methods except now the Entity, Key, and Domain doesn't have to be repeated 
+for each route.
+
+
 ## ValidatedResult
 
 If you use `MapRootRouteGroup` then the `ValidatedResultEndpointFilter` is added by default.  This simply turns a `ValidatedResult` into an `IResult` for the endpoint.  This means the result gets translated to what the Http result required so if you do custom things make sure you either perform a ToHttpResult() on the `ValidatedResult` or add the endpoint filter to the endpoint manually.
@@ -66,7 +82,8 @@ These default handlers can be registered by calling:
 
     services.AddSliceREndpointDefaultValidatedHandlers();
 
-The trick here is that the endpoint builders need to be registered first so the code can evaluate what default handler interfaces are being referenced.  It then attempts to match the desired type to an entity, if not an entity then checks if the type implements the `IDomainEntity<TEntity>`.  If it all matches up then a default handler can be registered.  
+The trick here is that the endpoint builders need to be registered first so the code can evaluate what default handler interfaces are being referenced.  It then attempts to match the desired type to an entity, if not an entity then checks if the type implements the `IEntityMetadata<TEntity>`.  If it all matches up then a default handler can be registered. 
+If using `EntityRouteGroupBuilder` then the endpoint itself will already contain EntityMetadata so the DTO does not need the interface itself.
 
 #### Debugging Note:
 Code was added to log to the console on startup for any handlers that don't exist.  The Microsoft developer exception page doesn't help with what type is missing when it can't be found in the services collection.  So its helpful to log this specific missing handler type at the beginning of the console log.

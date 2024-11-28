@@ -6,7 +6,7 @@ using Vertizens.SliceR.Validated;
 namespace Vertizens.SliceR.Minimal;
 internal class EndpointHandlerDependencies(IEnumerable<IEndpointBuilder> _endpointBuilders) : IEndpointHandlerDependencies
 {
-    public IEnumerable<Type> GetHandlerInterfaces()
+    public IEnumerable<EndpointHandler> GetEndpointHandlers()
     {
         var serviceProvider = new EmptyServiceProvider();
         var startupEndpointBuilder = new StartupEndpointRouteBuilder(serviceProvider);
@@ -15,9 +15,21 @@ internal class EndpointHandlerDependencies(IEnumerable<IEndpointBuilder> _endpoi
             endpointBuilder.Build(startupEndpointBuilder);
         }
 
-        var endpoints = startupEndpointBuilder.DataSources.SelectMany(x => x.Endpoints).ToList();
+        var endpointHandlers = new List<EndpointHandler>();
+        foreach (var endpointDatasource in startupEndpointBuilder.DataSources)
+        {
+            foreach (var endpoint in endpointDatasource.Endpoints)
+            {
+                var handlerInterfaces = serviceProvider.ServiceValidator.GetHandlerInterfaces();
+                if (handlerInterfaces.Count > 0)
+                {
+                    endpointHandlers.AddRange(handlerInterfaces.Select(x => new EndpointHandler(endpoint, x)));
+                    serviceProvider.ServiceValidator.ClearHandlerInterfaces();
+                }
+            }
+        }
 
-        return serviceProvider.ServiceValidator.GetHandlerInterfaces();
+        return endpointHandlers;
     }
 
     private class EmptyServiceProvider : IServiceProvider
@@ -48,6 +60,11 @@ internal class EndpointHandlerDependencies(IEnumerable<IEndpointBuilder> _endpoi
         public List<Type> GetHandlerInterfaces()
         {
             return [.. _validatedHandlerTypes.Keys];
+        }
+
+        public void ClearHandlerInterfaces()
+        {
+            _validatedHandlerTypes = [];
         }
     }
 
