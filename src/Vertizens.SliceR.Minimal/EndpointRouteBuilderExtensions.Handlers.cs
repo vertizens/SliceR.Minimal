@@ -36,6 +36,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <param name="pattern">any route pattern for building endpoint</param>
     /// <returns></returns>
     public static RouteHandlerBuilder MapGetAsById<TId, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
+        where TId : notnull
     {
         return endpoints.MapGet(pattern, (TId id, IValidatedHandler<ByKey<TId>, TDomain?> byKeyHandler) =>
             byKeyHandler.Handle(id))
@@ -98,6 +99,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <typeparam name="TDomainUpdate">Domain maps to existing entity to be updated</typeparam>
     /// <typeparam name="TDomain">Type to be returned</typeparam>
     public static RouteHandlerBuilder MapPutAsUpdateById<TId, TDomainUpdate, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
+        where TId : notnull
     {
         return endpoints.MapPut(pattern, (TId id, TDomainUpdate domainUpdate, IValidatedHandler<Update<TId, TDomainUpdate>, TDomain?> updateHandler) =>
             updateHandler.Handle(new Update<TId, TDomainUpdate>(id, domainUpdate)))
@@ -111,6 +113,7 @@ public static partial class EndpointRouteBuilderExtensions
     /// <typeparam name="TId">Id property of the domain to be deleted</typeparam>
     /// <typeparam name="TDomain">Type of domain that maps to an entity to be deleted</typeparam>
     public static RouteHandlerBuilder MapDeleteAsById<TId, TDomain>(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern = "{id}")
+        where TId : notnull
     {
         return endpoints.MapDelete(pattern, async (TId id, IValidatedHandler<Delete<TId, TDomain>> deleteHandler) =>
             (await deleteHandler.Handle(new Delete<TId, TDomain>(id))).ToHttpResult())

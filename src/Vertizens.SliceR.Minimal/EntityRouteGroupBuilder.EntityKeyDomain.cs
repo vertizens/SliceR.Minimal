@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Diagnostics.CodeAnalysis;
 using Vertizens.SliceR.Operations;
@@ -13,7 +12,9 @@ namespace Vertizens.SliceR.Minimal;
 /// <typeparam name="TKey">Id or key value for TEntity</typeparam>
 /// <typeparam name="TEntity">Expected entity type</typeparam>
 /// <typeparam name="TDomain">Domain to map/project entity to from a response</typeparam>
-public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder builder) : EntityRouteGroupBuilder<TEntity, TKey>(builder)
+public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder builder)
+    : EntityRouteGroupBuilder<TEntity, TKey>(builder)
+    where TKey : notnull
 {
     /// <summary>
     /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="NoFilter"/> 
@@ -23,9 +24,7 @@ public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder b
     /// <returns></returns>
     public override RouteHandlerBuilder MapGetAsNoFilterQueryable([StringSyntax("Route")] string pattern = "")
     {
-        return Builder.MapGet(pattern, (IValidatedHandler<NoFilter, IQueryable<TDomain>> noFilterHandler) =>
-            noFilterHandler.Handle(new NoFilter()))
-            .Produces<IQueryable<TDomain>>().WithMetadata();
+        return MapGetAsNoFilterQueryable<TDomain>(pattern);
     }
 
     /// <summary>
@@ -36,9 +35,18 @@ public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder b
     /// <returns></returns>
     public override RouteHandlerBuilder MapGetAsById([StringSyntax("Route")] string pattern = "{id}")
     {
-        return Builder.MapGet(pattern, (TKey id, IValidatedHandler<ByKey<TKey>, TDomain?> byKeyHandler) =>
-            byKeyHandler.Handle(id))
-            .Produces<TDomain>();
+        return MapGetAsById<TDomain>(pattern);
+    }
+
+    /// <summary>
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="ByKey{TKey}"/> 
+    /// and expects an instance of type <typeparamref name="TDomain"/> in response.
+    /// </summary>
+    /// <param name="pattern">any route pattern for building endpoint</param>
+    /// <returns></returns>
+    public override RouteHandlerBuilder MapGetAsByKey([StringSyntax("Route")] string pattern = "{id}")
+    {
+        return MapGetAsByKey<TDomain>(pattern);
     }
 
     /// <summary>
@@ -50,9 +58,7 @@ public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder b
     /// <returns></returns>
     public override RouteHandlerBuilder MapPostAsInsert<TDomainInsert>([StringSyntax("Route")] string pattern = "")
     {
-        return Builder.MapPost(pattern, (TDomainInsert domainInsert, IValidatedHandler<Insert<TDomainInsert>, TDomain?> insertHandler) =>
-            insertHandler.Handle(new Insert<TDomainInsert>(domainInsert)))
-            .Produces<TDomain>();
+        return MapPostAsInsert<TDomainInsert, TDomain>(pattern);
     }
 
     /// <summary>
@@ -63,9 +69,18 @@ public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder b
     /// <param name="pattern">any route pattern for building endpoint</param>
     public override RouteHandlerBuilder MapPutAsUpdateById<TDomainUpdate>([StringSyntax("Route")] string pattern = "{id}")
     {
-        return Builder.MapPut(pattern, (TKey id, TDomainUpdate domainUpdate, IValidatedHandler<Update<TKey, TDomainUpdate>, TDomain?> updateHandler) =>
-            updateHandler.Handle(new Update<TKey, TDomainUpdate>(id, domainUpdate)))
-            .Produces<TDomain>();
+        return MapPutAsUpdateById<TDomainUpdate, TDomain>(pattern);
+    }
+
+    /// <summary>
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest, TResult}"/> that requests <see cref="Update{TKey, TDomainUpdate}"/>
+    /// and expects an instance of type <typeparamref name="TDomain"/> in response.
+    /// </summary>
+    /// <typeparam name="TDomainUpdate">Domain maps to existing entity to be updated</typeparam>
+    /// <param name="pattern">any route pattern for building endpoint</param>
+    public override RouteHandlerBuilder MapPutAsUpdateByKey<TDomainUpdate>([StringSyntax("Route")] string pattern = "{id}")
+    {
+        return MapPutAsUpdateByKey<TDomainUpdate, TDomain>(pattern);
     }
 
     /// <summary>
@@ -75,9 +90,17 @@ public class EntityRouteGroupBuilder<TEntity, TKey, TDomain>(RouteGroupBuilder b
     /// <param name="pattern">any route pattern for building endpoint</param>
     public override RouteHandlerBuilder MapDeleteAsById([StringSyntax("Route")] string pattern = "{id}")
     {
-        return Builder.MapDelete(pattern, async (TKey id, IValidatedHandler<Delete<TKey, TDomain>> deleteHandler) =>
-            (await deleteHandler.Handle(new Delete<TKey, TDomain>(id))).ToHttpResult())
-            .Produces(StatusCodes.Status204NoContent);
+        return MapDeleteAsById<TDomain>(pattern);
+    }
+
+    /// <summary>
+    /// Builds an endpoint for a <see cref="IValidatedHandler{TRequest}"/> that requests <see cref="Delete{TKey, TDomain}"/>
+    /// and expects no content in response.
+    /// </summary>
+    /// <param name="pattern">any route pattern for building endpoint</param>
+    public override RouteHandlerBuilder MapDeleteAsByKey([StringSyntax("Route")] string pattern = "{id}")
+    {
+        return MapDeleteAsByKey<TDomain>(pattern);
     }
 
     /// <summary>
